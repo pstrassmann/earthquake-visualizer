@@ -10,22 +10,22 @@ readable_file = 'data/readable_eq_data.json'
 with open(readable_file, 'w') as f:
     json.dump(all_eq_data, f, indent=4)
 
+data_title = all_eq_data['metadata']['title']
 all_eq_dicts = all_eq_data['features']
 
-mags, lons, lats,  = [], [], []
+mags, lons, lats, hover_texts  = [], [], [], []
 for eq_dict in all_eq_dicts:
-   mag = eq_dict['properties']['mag']
-   lon = eq_dict['geometry']['coordinates'][0]
-   lat = eq_dict['geometry']['coordinates'][1]
-   mags.append(mag)
-   lons.append(lon)
-   lats.append(lat)
+    mags.append(eq_dict['properties']['mag'])
+    lons.append(eq_dict['geometry']['coordinates'][0])
+    lats.append(eq_dict['geometry']['coordinates'][1])
+    hover_texts.append(eq_dict['properties']['title'])
 
 # Map the earthquakes
 data = [{
     'type': 'scattergeo',
     'lon': lons,
     'lat': lats,
+    'text': hover_texts,
     'marker': {
         'size': [2*mag for mag in mags],
         'color': mags,
@@ -34,7 +34,13 @@ data = [{
         'colorbar': {'title': 'Magnitude'},
     },
 }]
-my_layout = Layout(title='Global Earthquakes')
+my_layout = Layout(
+    title={'text':data_title,
+           'y': 0.9,
+           'x': 0.45,
+           'xanchor': 'center',
+           'yanchor': 'top'},
+    font=dict(size=24))
 
 fig = {'data': data, 'layout': my_layout}
 offline.plot(fig, filename='global_earthquakes.html')
